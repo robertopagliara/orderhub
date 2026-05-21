@@ -3,8 +3,14 @@ import { Routes } from '@angular/router';
 /**
  * Routing principale dell'applicazione OrderHub.
  *
- * Sprint 0: scheletro con tre aree feature caricate in lazy loading.
- * Le rotte interne di ciascuna feature saranno definite negli sprint successivi.
+ * Aree feature lazy loaded:
+ *  - orders    -> Sprint 1/2/3
+ *  - products  -> placeholder (a casa, bonus C)
+ *  - customers -> placeholder (a casa, bonus C)
+ *  - auth      -> Bonus B (login)
+ *
+ * '' redirect a 'orders'. ** wildcard riporta a 'orders' (potrebbe
+ * essere una NotFoundComponent in una versione completa).
  */
 export const routes: Routes = [
   { path: '', pathMatch: 'full', redirectTo: 'orders' },
@@ -26,6 +32,12 @@ export const routes: Routes = [
       import('./features/customers/customers.routes').then(
         (m) => m.CUSTOMERS_ROUTES,
       ),
+  },
+  {
+    // Bonus B: feature auth con la pagina di login.
+    path: '',
+    loadChildren: () =>
+      import('./features/auth/auth.routes').then((m) => m.AUTH_ROUTES),
   },
   { path: '**', redirectTo: 'orders' },
 ];

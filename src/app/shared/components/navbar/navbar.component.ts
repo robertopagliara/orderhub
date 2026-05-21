@@ -1,12 +1,18 @@
-import { ChangeDetectionStrategy, Component } from '@angular/core';
-import { RouterLink, RouterLinkActive } from '@angular/router';
+import { ChangeDetectionStrategy, Component, inject } from '@angular/core';
+import { Router, RouterLink, RouterLinkActive } from '@angular/router';
+
+import { AuthService } from '../../../core/services/auth.service';
+import { ToastService } from '../../../core/services/toast.service';
 
 /**
- * Barra di navigazione principale.
- * Espone tre link verso le aree feature: ordini, prodotti, clienti.
+ * NavbarComponent - barra di navigazione globale.
  *
- * `routerLinkActive` aggiunge automaticamente le classi CSS al link
- * della rotta correntemente attiva (visual feedback all'utente).
+ * Link alle aree feature (ordini, prodotti, clienti) + area auth a destra
+ * (Bonus B): mostra l'utente loggato con bottone Logout, oppure il link
+ * "Accedi" se nessuno e' autenticato.
+ *
+ * `routerLinkActive` aggiunge la classe `text-red-500` al link attivo
+ * per feedback visivo immediato.
  */
 @Component({
   selector: 'app-navbar',
@@ -31,15 +37,58 @@ import { RouterLink, RouterLinkActive } from '@angular/router';
               </a>
             </li>
           }
+
+          <!-- Sezione auth (Bonus B) -->
+          <li class="border-l border-slate-800 pl-6">
+            @if (auth.currentUser(); as user) {
+              <div class="flex items-center gap-3">
+                <span class="text-slate-400">
+                  Ciao, <strong class="text-slate-100">{{ user.username }}</strong>
+                  <span class="ml-1 rounded-full bg-slate-800 px-2 py-0.5 text-xs uppercase">
+                    {{ user.role }}
+                  </span>
+                </span>
+                <button
+                  type="button"
+                  (click)="onLogout()"
+                  class="rounded-md border border-slate-700 px-3 py-1 text-xs font-medium text-slate-200 hover:bg-slate-800"
+                >
+                  Logout
+                </button>
+              </div>
+            } @else {
+              <a
+                routerLink="/login"
+                class="rounded-md bg-red-500 px-3 py-1.5 text-xs font-medium text-white hover:bg-red-600"
+              >
+                Accedi
+              </a>
+            }
+          </li>
         </ul>
       </div>
     </nav>
   `,
 })
 export class NavbarComponent {
+  protected readonly auth = inject(AuthService);
+  private readonly router = inject(Router);
+  private readonly toast = inject(ToastService);
+
   protected readonly links = [
     { path: '/orders', label: 'Ordini' },
     { path: '/products', label: 'Prodotti' },
     { path: '/customers', label: 'Clienti' },
   ];
+
+  /**
+   * Handler del click su Logout.
+   * Pulisce lo state e mostra un toast informativo, poi naviga a /orders.
+   */
+  protected onLogout(): void {
+    this.auth.logout().subscribe(() => {
+      this.toast.show('Logout effettuato.', 'info');
+      this.router.navigate(['/orders']);
+    });
+  }
 }
