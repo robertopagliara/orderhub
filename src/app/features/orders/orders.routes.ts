@@ -3,12 +3,12 @@ import { Routes } from '@angular/router';
 /**
  * Rotte della feature "orders".
  *
- * Sprint 1: '' -> OrderListComponent (lista + filtro per status).
- * Sprint 2 aggiungera ':id' -> OrderDetailComponent.
+ * - Sprint 1: '' -> OrderListComponent (lista)
+ * - Sprint 2: ':id' -> OrderDetailComponent (dettaglio)
  *
- * `loadComponent` permette il code-splitting fine-grained: il chunk
- * del componente viene scaricato solo quando l'utente naviga su
- * questa specifica rotta.
+ * Ogni rotta usa `loadComponent` per code-splitting fine-grained:
+ * il chunk del componente viene scaricato solo quando l'utente
+ * naviga su quella specifica rotta.
  */
 export const ORDERS_ROUTES: Routes = [
   {
@@ -16,5 +16,13 @@ export const ORDERS_ROUTES: Routes = [
     loadComponent: () =>
       import('./order-list.component').then((m) => m.OrderListComponent),
     title: 'OrderHub - Lista ordini',
+  },
+  {
+    path: ':id',
+    loadComponent: () =>
+      import('./order-detail.component').then(
+        (m) => m.OrderDetailComponent,
+      ),
+    title: 'OrderHub - Dettaglio ordine',
   },
 ];
