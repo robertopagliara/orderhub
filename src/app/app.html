@@ -1,6 +1,8 @@
 <!--
   Layout root di OrderHub.
-  Sprint 1: header sostituito dalla NavBar condivisa.
+  - NavBar in alto
+  - <router-outlet /> per le pagine attive
+  - Spinner globale + ToastContainer come overlay sopra a tutto (Bonus A)
 -->
 <div class="min-h-screen bg-slate-900 text-slate-100">
   <app-navbar />
@@ -8,4 +10,11 @@
   <main class="mx-auto max-w-6xl px-6 py-8">
     <router-outlet />
   </main>
+
+  <!--
+    Bonus A: overlay globali. Vivono al livello shell, sono sempre
+    presenti nel DOM e reagiscono ai signal dei service core.
+  -->
+  <app-spinner />
+  <app-toast-container />
 </div>
