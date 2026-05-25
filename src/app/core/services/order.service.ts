@@ -29,6 +29,17 @@ export class OrderService {
   }
 
   /**
+   * Ordini di uno specifico cliente.
+   *
+   * Sfrutta il filtro automatico di json-server sui campi top-level:
+   * `GET /orders?customerId=3` restituisce solo gli ordini con quel
+   * customerId, senza dover filtrare lato client.
+   */
+  getByCustomerId(customerId: string): Observable<Order[]> {
+    return this.http.get<Order[]>(`${this.baseUrl}?customerId=${customerId}`);
+  }
+
+  /**
    * Crea un nuovo ordine. L'id e il timestamp `createdAt` vengono
    * generati dal chiamante (OrderFormComponent) per restare type-safe
    * sul tipo `string` dell'id, indipendente dal comportamento di
