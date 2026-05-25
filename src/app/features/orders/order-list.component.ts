@@ -6,7 +6,7 @@ import {
   signal,
 } from '@angular/core';
 import { toSignal } from '@angular/core/rxjs-interop';
-import { Router } from '@angular/router';
+import { Router, RouterLink } from '@angular/router';
 
 import { Order } from '../../core/models/order.model';
 import { OrderService } from '../../core/services/order.service';
@@ -31,7 +31,7 @@ import {
  */
 @Component({
   selector: 'app-order-list',
-  imports: [OrderCardComponent, StatusFilterComponent],
+  imports: [OrderCardComponent, StatusFilterComponent, RouterLink],
   changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
     <section class="space-y-6">
@@ -43,10 +43,20 @@ import {
           </p>
         </div>
 
-        <app-status-filter
-          [selected]="filter()"
-          (change)="filter.set($event)"
-        />
+        <div class="flex flex-wrap items-center gap-3">
+          <app-status-filter
+            [selected]="filter()"
+            (change)="filter.set($event)"
+          />
+
+          <!-- Sprint 3: link al form di creazione ordine. -->
+          <a
+            routerLink="/orders/new"
+            class="rounded-md bg-red-500 px-3 py-1.5 text-sm font-medium text-white shadow hover:bg-red-600"
+          >
+            + Nuovo ordine
+          </a>
+        </div>
       </header>
 
       <div class="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
