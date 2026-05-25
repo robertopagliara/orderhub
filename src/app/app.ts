@@ -1,7 +1,7 @@
 import { Component, signal } from '@angular/core';
 import { RouterOutlet } from '@angular/router';
 
-import { NavbarComponent } from './shared/components/navbar/navbar.component';
+import { SidebarComponent } from './shared/components/sidebar/sidebar.component';
 import { SpinnerComponent } from './shared/components/spinner/spinner.component';
 import { ToastContainerComponent } from './shared/components/toast-container/toast-container.component';
 
@@ -9,7 +9,7 @@ import { ToastContainerComponent } from './shared/components/toast-container/toa
  * App - shell dell'applicazione OrderHub.
  *
  * Inserisce una sola volta nel DOM gli elementi globali:
- *  - NavbarComponent (link feature)
+ *  - SidebarComponent (navigazione verticale stile CRM, collassabile)
  *  - SpinnerComponent (overlay durante chiamate HTTP, Bonus A)
  *  - ToastContainerComponent (notifiche errori e successi, Bonus A)
  *
@@ -19,7 +19,7 @@ import { ToastContainerComponent } from './shared/components/toast-container/toa
   selector: 'app-root',
   imports: [
     RouterOutlet,
-    NavbarComponent,
+    SidebarComponent,
     SpinnerComponent,
     ToastContainerComponent,
   ],
