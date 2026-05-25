@@ -38,4 +38,39 @@ export class CustomerService {
   getById(id: string): Observable<Customer> {
     return this.http.get<Customer>(`${this.baseUrl}/${id}`);
   }
+
+  /**
+   * Crea un nuovo cliente (POST).
+   *
+   * L'id viene generato dal chiamante con `crypto.randomUUID()` per
+   * restare type-safe sul `string` del modello, indipendente dal
+   * comportamento di json-server (che altrimenti assegnerebbe un
+   * id numerico).
+   */
+  create(customer: Customer): Observable<Customer> {
+    return this.http.post<Customer>(this.baseUrl, customer);
+  }
+
+  /**
+   * Sostituisce un cliente esistente (PUT).
+   * Richiede l'oggetto Customer completo.
+   */
+  update(customer: Customer): Observable<Customer> {
+    return this.http.put<Customer>(
+      `${this.baseUrl}/${customer.id}`,
+      customer,
+    );
+  }
+
+  /**
+   * Elimina un cliente per id (DELETE).
+   *
+   * NB didattica: json-server non ha integrità referenziale. Gli ordini
+   * con `customerId` puntante a un cliente eliminato restano nel db
+   * con un puntatore "orfano". In un backend reale si gestirebbe con
+   * un vincolo FK o un soft-delete.
+   */
+  delete(id: string): Observable<void> {
+    return this.http.delete<void>(`${this.baseUrl}/${id}`);
+  }
 }

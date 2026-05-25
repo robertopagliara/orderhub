@@ -6,7 +6,7 @@ import {
   signal,
 } from '@angular/core';
 import { toSignal } from '@angular/core/rxjs-interop';
-import { Router } from '@angular/router';
+import { Router, RouterLink } from '@angular/router';
 
 import { Customer } from '../../core/models/customer.model';
 import { CustomerService } from '../../core/services/customer.service';
@@ -22,6 +22,7 @@ import { CustomerService } from '../../core/services/customer.service';
  */
 @Component({
   selector: 'app-customer-list',
+  imports: [RouterLink],
   changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
     <section class="space-y-6">
@@ -33,13 +34,21 @@ import { CustomerService } from '../../core/services/customer.service';
           </p>
         </div>
 
-        <input
-          type="search"
-          [value]="search()"
-          (input)="onSearch($event)"
-          placeholder="Cerca per nome o email…"
-          class="w-full max-w-xs rounded-md border border-slate-700 bg-slate-900 px-3 py-1.5 text-sm text-slate-100 placeholder:text-slate-500"
-        />
+        <div class="flex items-center gap-2">
+          <input
+            type="search"
+            [value]="search()"
+            (input)="onSearch($event)"
+            placeholder="Cerca per nome o email…"
+            class="w-full max-w-xs rounded-md border border-slate-700 bg-slate-900 px-3 py-1.5 text-sm text-slate-100 placeholder:text-slate-500"
+          />
+          <a
+            routerLink="/customers/new"
+            class="whitespace-nowrap rounded-md bg-red-500 px-3 py-1.5 text-sm font-medium text-white shadow hover:bg-red-600"
+          >
+            + Nuovo cliente
+          </a>
+        </div>
       </header>
 
       <div class="overflow-x-auto rounded-lg border border-slate-800">

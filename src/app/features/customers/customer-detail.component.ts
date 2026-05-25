@@ -6,7 +6,7 @@ import {
   signal,
 } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
-import { ActivatedRoute, RouterLink } from '@angular/router';
+import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { forkJoin, switchMap } from 'rxjs';
 
 import { Customer } from '../../core/models/customer.model';
@@ -64,10 +64,28 @@ type DetailViewModel =
         @case ('loaded') {
           @if (asLoaded(vm()); as data) {
             <article class="rounded-lg border border-slate-800 bg-slate-950/60 p-6">
-              <header class="mb-4">
-                <p class="text-xs uppercase tracking-wide text-slate-500">Cliente</p>
-                <h2 class="text-2xl font-bold text-white">{{ data.customer.name }}</h2>
-                <p class="text-sm text-slate-400">{{ data.customer.email }}</p>
+              <header class="mb-4 flex items-start justify-between gap-4">
+                <div>
+                  <p class="text-xs uppercase tracking-wide text-slate-500">Cliente</p>
+                  <h2 class="text-2xl font-bold text-white">{{ data.customer.name }}</h2>
+                  <p class="text-sm text-slate-400">{{ data.customer.email }}</p>
+                </div>
+                <div class="flex shrink-0 gap-2">
+                  <a
+                    [routerLink]="['/customers', data.customer.id, 'edit']"
+                    class="rounded-md border border-slate-700 px-3 py-1.5 text-sm font-medium text-slate-200 hover:bg-slate-800"
+                  >
+                    Modifica
+                  </a>
+                  <button
+                    type="button"
+                    (click)="onDelete(data.customer, data.orders.length)"
+                    [disabled]="deleting()"
+                    class="rounded-md border border-red-500/40 px-3 py-1.5 text-sm font-medium text-red-300 hover:bg-red-500/10 disabled:cursor-not-allowed disabled:opacity-50"
+                  >
+                    Elimina
+                  </button>
+                </div>
               </header>
 
               <dl class="grid grid-cols-3 gap-4 text-sm">
@@ -143,10 +161,14 @@ type DetailViewModel =
 })
 export class CustomerDetailComponent {
   private readonly route = inject(ActivatedRoute);
+  private readonly router = inject(Router);
   private readonly customerService = inject(CustomerService);
   private readonly orderService = inject(OrderService);
 
   protected readonly vm = signal<DetailViewModel>({ status: 'loading' });
+
+  /** Flag mentre la DELETE è in volo, disabilita il bottone Elimina. */
+  protected readonly deleting = signal(false);
 
   protected asLoaded(
     vm: DetailViewModel,
@@ -180,6 +202,33 @@ export class CustomerDetailComponent {
       delivered: 'bg-emerald-500/15 text-emerald-300 ring-emerald-500/30',
       cancelled: 'bg-red-500/15 text-red-300 ring-red-500/30',
     }[status];
+  }
+
+  /**
+   * Elimina il cliente previa conferma dell'utente.
+   *
+   * Se il cliente ha ordini, l'avviso lo segnala: json-server non ha
+   * integrità referenziale, quindi gli ordini orfani resteranno nel db
+   * con un customerId puntante a un cliente eliminato. In un backend
+   * reale si gestirebbe con FK / soft-delete.
+   */
+  protected onDelete(customer: Customer, orderCount: number): void {
+    const warning =
+      orderCount > 0
+        ? `\n\nAttenzione: il cliente ha ${orderCount} ordini collegati che resteranno nel sistema con un riferimento orfano.`
+        : '';
+    const ok = confirm(
+      `Eliminare definitivamente il cliente "${customer.name}"?${warning}`,
+    );
+    if (!ok) {
+      return;
+    }
+
+    this.deleting.set(true);
+    this.customerService.delete(customer.id).subscribe({
+      next: () => this.router.navigate(['/customers']),
+      error: () => this.deleting.set(false),
+    });
   }
 
   constructor() {
