@@ -7,7 +7,7 @@ import {
   signal,
 } from '@angular/core';
 import { toSignal } from '@angular/core/rxjs-interop';
-import { Router } from '@angular/router';
+import { Router, RouterLink } from '@angular/router';
 
 import { Product } from '../../core/models/product.model';
 import { ProductService } from '../../core/services/product.service';
@@ -23,7 +23,7 @@ import { ProductService } from '../../core/services/product.service';
  */
 @Component({
   selector: 'app-product-list',
-  imports: [CurrencyPipe],
+  imports: [CurrencyPipe, RouterLink],
   changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
     <section class="space-y-6">
@@ -35,19 +35,27 @@ import { ProductService } from '../../core/services/product.service';
           </p>
         </div>
 
-        <label class="flex items-center gap-2 text-sm">
-          <span class="text-slate-400">Categoria:</span>
-          <select
-            [value]="category()"
-            (change)="onCategoryChange($event)"
-            class="rounded-md border border-slate-700 bg-slate-900 px-2 py-1.5 text-sm text-slate-100"
+        <div class="flex items-center gap-2">
+          <label class="flex items-center gap-2 text-sm">
+            <span class="text-slate-400">Categoria:</span>
+            <select
+              [value]="category()"
+              (change)="onCategoryChange($event)"
+              class="rounded-md border border-slate-700 bg-slate-900 px-2 py-1.5 text-sm text-slate-100"
+            >
+              <option value="all">Tutte</option>
+              @for (c of categories(); track c) {
+                <option [value]="c">{{ c }}</option>
+              }
+            </select>
+          </label>
+          <a
+            routerLink="/products/new"
+            class="whitespace-nowrap rounded-md bg-red-500 px-3 py-1.5 text-sm font-medium text-white shadow hover:bg-red-600"
           >
-            <option value="all">Tutte</option>
-            @for (c of categories(); track c) {
-              <option [value]="c">{{ c }}</option>
-            }
-          </select>
-        </label>
+            + Nuovo prodotto
+          </a>
+        </div>
       </header>
 
       <div class="overflow-x-auto rounded-lg border border-slate-800">

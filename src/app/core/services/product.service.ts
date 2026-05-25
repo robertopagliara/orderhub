@@ -28,4 +28,33 @@ export class ProductService {
   getById(id: string): Observable<Product> {
     return this.http.get<Product>(`${this.baseUrl}/${id}`);
   }
+
+  /**
+   * Crea un nuovo prodotto (POST).
+   * Id generato dal chiamante con `crypto.randomUUID()` per restare
+   * type-safe sul `string` del modello.
+   */
+  create(product: Product): Observable<Product> {
+    return this.http.post<Product>(this.baseUrl, product);
+  }
+
+  /** Sostituisce un prodotto esistente (PUT). */
+  update(product: Product): Observable<Product> {
+    return this.http.put<Product>(
+      `${this.baseUrl}/${product.id}`,
+      product,
+    );
+  }
+
+  /**
+   * Elimina un prodotto per id (DELETE).
+   *
+   * NB didattica: gli OrderItem hanno name/price denormalizzati al
+   * momento dell'acquisto, quindi gli ordini storici restano coerenti
+   * anche se il prodotto sparisce dal catalogo. Resta orfano solo il
+   * `productId` di OrderItem (che diventa un puntatore "morto").
+   */
+  delete(id: string): Observable<void> {
+    return this.http.delete<void>(`${this.baseUrl}/${id}`);
+  }
 }

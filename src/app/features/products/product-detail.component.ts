@@ -6,7 +6,7 @@ import {
   signal,
 } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
-import { ActivatedRoute, RouterLink } from '@angular/router';
+import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { switchMap } from 'rxjs';
 
 import { Product } from '../../core/models/product.model';
@@ -68,12 +68,28 @@ type DetailViewModel =
                   <h2 class="text-2xl font-bold text-white">
                     {{ data.product.name }}
                   </h2>
+                  <span
+                    class="mt-2 inline-block rounded-full bg-slate-800 px-3 py-1 text-xs font-medium text-slate-300"
+                  >
+                    {{ data.product.category }}
+                  </span>
                 </div>
-                <span
-                  class="rounded-full bg-slate-800 px-3 py-1 text-xs font-medium text-slate-300"
-                >
-                  {{ data.product.category }}
-                </span>
+                <div class="flex shrink-0 gap-2">
+                  <a
+                    [routerLink]="['/products', data.product.id, 'edit']"
+                    class="rounded-md border border-slate-700 px-3 py-1.5 text-sm font-medium text-slate-200 hover:bg-slate-800"
+                  >
+                    Modifica
+                  </a>
+                  <button
+                    type="button"
+                    (click)="onDelete(data.product)"
+                    [disabled]="deleting()"
+                    class="rounded-md border border-red-500/40 px-3 py-1.5 text-sm font-medium text-red-300 hover:bg-red-500/10 disabled:cursor-not-allowed disabled:opacity-50"
+                  >
+                    Elimina
+                  </button>
+                </div>
               </header>
 
               <dl class="grid grid-cols-2 gap-4 text-sm">
@@ -100,9 +116,13 @@ type DetailViewModel =
 })
 export class ProductDetailComponent {
   private readonly route = inject(ActivatedRoute);
+  private readonly router = inject(Router);
   private readonly productService = inject(ProductService);
 
   protected readonly vm = signal<DetailViewModel>({ status: 'loading' });
+
+  /** Flag mentre la DELETE è in volo, disabilita il bottone Elimina. */
+  protected readonly deleting = signal(false);
 
   /**
    * Type guard helper per `@case ('loaded')`: restringe il tipo del vm
@@ -119,6 +139,31 @@ export class ProductDetailComponent {
     vm: DetailViewModel,
   ): Extract<DetailViewModel, { status: 'error' }> | null {
     return vm.status === 'error' ? vm : null;
+  }
+
+  /**
+   * Elimina il prodotto previa conferma.
+   *
+   * Gli OrderItem hanno name/price denormalizzati al momento dell'acquisto,
+   * quindi gli ordini storici restano coerenti. Resta orfano solo il
+   * `productId` di OrderItem (che diventa un puntatore "morto" verso
+   * un prodotto che non esiste più a catalogo).
+   */
+  protected onDelete(product: Product): void {
+    const ok = confirm(
+      `Eliminare definitivamente il prodotto "${product.name}"?\n\n` +
+        `Gli ordini storici resteranno coerenti (name e price sono denormalizzati ` +
+        `al momento dell'acquisto), ma il riferimento al prodotto diventerà orfano.`,
+    );
+    if (!ok) {
+      return;
+    }
+
+    this.deleting.set(true);
+    this.productService.delete(product.id).subscribe({
+      next: () => this.router.navigate(['/products']),
+      error: () => this.deleting.set(false),
+    });
   }
 
   constructor() {
