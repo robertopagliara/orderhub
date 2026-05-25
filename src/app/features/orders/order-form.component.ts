@@ -11,7 +11,6 @@ import { takeUntilDestroyed, toSignal } from '@angular/core/rxjs-interop';
 import {
   AbstractControl,
   FormArray,
-  FormControl,
   FormGroup,
   NonNullableFormBuilder,
   ReactiveFormsModule,
@@ -22,8 +21,10 @@ import { ActivatedRoute, Router } from '@angular/router';
 
 import { Customer } from '../../core/models/customer.model';
 import { Order, OrderStatus } from '../../core/models/order.model';
+import { Product } from '../../core/models/product.model';
 import { CustomerService } from '../../core/services/customer.service';
 import { OrderService } from '../../core/services/order.service';
+import { ProductService } from '../../core/services/product.service';
 import { OrderItemRowComponent } from './order-item-row.component';
 
 /**
@@ -34,10 +35,6 @@ import { OrderItemRowComponent } from './order-item-row.component';
  * un errore di UX (ordine senza items). Lo gestiamo con un validatore
  * dedicato che ritorna `{ minLength: { required: 1, actual: 0 } }`
  * quando l'array e' vuoto.
- *
- * @param control - Il FormArray (passato come AbstractControl per coerenza
- *                  con la firma standard di Validators).
- * @returns null se valido, oggetto errore altrimenti.
  */
 function minOneItem(
   control: AbstractControl,
@@ -63,11 +60,19 @@ type FormMode = 'new' | 'edit';
  *  - FormArray<FormGroup> con validatore custom `minOneItem`
  *  - validatori built-in (required, min) su tutti i campi
  *  - dropdown clienti popolato via `toSignal(customerService.getAll())`
+ *  - dropdown prodotti (passato ad ogni riga) popolato via `toSignal(productService.getAll())`
  *  - select status con tutti gli `OrderStatus`
  *  - submit chiama create() o update() in base alla modalita
  *  - in modalita 'edit': fetch ordine + patchValue del form
- *  - calcolo del totale via `computed` su valueChanges
+ *  - calcolo del totale via `computed` sul signal del valueChanges
  *  - dopo submit: navigate alla lista
+ *
+ * IMPORTANTE — pattern signal per i FormGroup figli:
+ *   `valueChanges` di un FormArray emette VALORI (plain object), non
+ *   `FormGroup`. Per esporre i `FormGroup` figli al template in modo
+ *   reattivo usiamo un signal "revision counter" che bumpiamo a ogni
+ *   push/removeAt/clear; `itemsControls` e' poi un `computed` che legge
+ *   il counter (per dichiarare la dipendenza) e ritorna `items.controls`.
  */
 @Component({
   selector: 'app-order-form',
@@ -156,6 +161,7 @@ type FormMode = 'new' | 'edit';
               <app-order-item-row
                 [group]="group"
                 [index]="$index"
+                [products]="products()"
                 (remove)="removeItem($event)"
               />
             } @empty {
@@ -207,26 +213,28 @@ export class OrderFormComponent {
   private readonly router = inject(Router);
   private readonly orderService = inject(OrderService);
   private readonly customerService = inject(CustomerService);
+  private readonly productService = inject(ProductService);
 
   /** Modalita del form: 'new' o 'edit' (signal derivato dalla route). */
   protected readonly mode = signal<FormMode>('new');
 
-  /**
-   * Id dell'ordine in editing. `null` in modalita 'new'.
-   * Conservato come signal per renderlo accessibile al template e a effect.
-   */
+  /** Id dell'ordine in editing. `null` in modalita 'new'. */
   protected readonly editingId = signal<string | null>(null);
 
   /** Flag mentre il submit e' in volo, blocca il bottone "Salva". */
   protected readonly submitting = signal(false);
 
-  /**
-   * Lista clienti per il dropdown.
-   * `toSignal` converte l'Observable HttpClient in un signal, gestendo
-   * cleanup automaticamente.
-   */
+  /** Lista clienti per il dropdown. */
   protected readonly customers = toSignal(this.customerService.getAll(), {
     initialValue: [] as Customer[],
+  });
+
+  /**
+   * Catalogo prodotti per i dropdown delle righe.
+   * Lo carichiamo una volta e lo passiamo a ogni `app-order-item-row`.
+   */
+  protected readonly products = toSignal(this.productService.getAll(), {
+    initialValue: [] as Product[],
   });
 
   /** Status possibili per il select. */
@@ -239,7 +247,6 @@ export class OrderFormComponent {
 
   /**
    * Form principale.
-   *
    * - customerId: required, valore iniziale stringa vuota
    * - status: required, default 'pending'
    * - items: FormArray con validatore custom `minOneItem`
@@ -250,47 +257,54 @@ export class OrderFormComponent {
     items: this.fb.array<FormGroup>([], minOneItem),
   });
 
-  /**
-   * Comoda lettura del FormArray "items".
-   * Tipizzato come FormArray<FormGroup> per il template.
-   */
+  /** Comoda lettura del FormArray "items". */
   protected get items(): FormArray<FormGroup> {
     return this.form.controls.items;
   }
 
   /**
-   * Signal con i FormGroup figli del FormArray.
-   *
-   * `valueChanges` del FormArray emette al cambio dei valori, quindi
-   * convertiamolo in signal con `toSignal` per leggerlo in modo
-   * reattivo nel template. Mostriamo i controls correnti.
-   *
-   * NB: `items.controls` non e' un signal nativo; usiamo il valueChanges
-   * come trigger per ricalcolare la lista.
+   * Counter che bumpiamo a ogni mutazione strutturale del FormArray
+   * (push, removeAt, clear). Serve solo come "trigger" per i computed
+   * che dipendono dalla collezione dei controls.
    */
-  protected readonly itemsControls = toSignal(
-    this.items.valueChanges,
-    { initialValue: this.items.value },
-  );
+  private readonly itemsRevision = signal(0);
 
   /**
-   * Totale dell'ordine, calcolato come somma di qty*price su ogni riga.
-   * Reattivo grazie al valueChanges del FormArray (esposto via toSignal).
+   * Signal con i FormGroup figli del FormArray, esposto al template.
+   * Dichiara la dipendenza da `itemsRevision` per ricalcolarsi a ogni
+   * push/remove. Ritorna i `controls` veri (oggetti FormGroup), non i
+   * loro valori — cosi `[formGroup]="group()"` nel figlio funziona.
+   */
+  protected readonly itemsControls = computed<FormGroup[]>(() => {
+    this.itemsRevision();
+    return this.items.controls;
+  });
+
+  /**
+   * Snapshot reattivo dei VALORI del FormArray. Lo usiamo solo per
+   * ricalcolare il totale a ogni keystroke su qty/price.
+   */
+  private readonly itemsValue = toSignal(this.items.valueChanges, {
+    initialValue: this.items.value,
+  });
+
+  /**
+   * Totale dell'ordine, somma di qty*price su ogni riga.
+   * Reattivo grazie a `itemsValue` (cambi di valori) e `itemsRevision`
+   * (aggiunte/rimozioni di righe).
    */
   protected readonly total = computed(() => {
-    // forziamo la dipendenza dal signal itemsControls per il ricalcolo
-    this.itemsControls();
-    return this.items.controls.reduce((sum, g) => {
-      const v = g.value as { qty?: number; price?: number };
-      return sum + (Number(v.qty) || 0) * (Number(v.price) || 0);
-    }, 0);
+    this.itemsRevision();
+    const values = this.itemsValue();
+    return values.reduce(
+      (sum, v) =>
+        sum + (Number(v.qty) || 0) * (Number(v.price) || 0),
+      0,
+    );
   });
 
   /**
    * Mostra l'errore "obbligatorio" solo se il campo e' touched o dirty.
-   *
-   * @param name - Nome del FormControl ('customerId' nel nostro caso).
-   * @returns true se l'errore deve essere visibile.
    */
   protected showError(name: 'customerId' | 'status'): boolean {
     const c = this.form.controls[name];
@@ -307,9 +321,7 @@ export class OrderFormComponent {
 
   constructor() {
     /**
-     * Lettura iniziale della route: decidiamo new vs edit in base
-     * alla presenza del parametro `:id`. Sottoscriviamo paramMap per
-     * supportare anche eventuali cambi successivi senza reistanziare.
+     * Lettura della route: decidiamo new vs edit in base al parametro `:id`.
      */
     this.route.paramMap
       .pipe(takeUntilDestroyed())
@@ -322,9 +334,9 @@ export class OrderFormComponent {
         } else {
           this.mode.set('new');
           this.editingId.set(null);
-          // start con UNA riga vuota cosi l'utente vede subito la UI
           this.items.clear();
           this.items.push(this.buildItemGroup());
+          this.bumpItems();
         }
       });
 
@@ -333,7 +345,6 @@ export class OrderFormComponent {
      * Esempio di `effect` su signal computed.
      */
     effect(() => {
-      // legge total() per dichiarare la dipendenza esplicita
       const t = this.total();
       if (this.form.dirty) {
         console.debug('[OrderForm] totale aggiornato:', t);
@@ -343,12 +354,6 @@ export class OrderFormComponent {
 
   /**
    * Carica un ordine esistente dal backend e patcha il form.
-   *
-   * Per il FormArray non basta `patchValue`: bisogna ricostruire i
-   * FormGroup figli (uno per ogni item dell'ordine), altrimenti il
-   * patch ignora i campi mancanti.
-   *
-   * @param id - Id dell'ordine in modifica.
    */
   private loadOrderForEdit(id: string): void {
     this.orderService
@@ -360,11 +365,11 @@ export class OrderFormComponent {
           for (const it of order.items) {
             this.items.push(this.buildItemGroup(it));
           }
+          this.bumpItems();
           this.form.patchValue({
             customerId: order.customerId,
             status: order.status,
           });
-          // marca pulito: l'utente non ha ancora modificato
           this.form.markAsPristine();
         },
         error: (err) => {
@@ -376,10 +381,6 @@ export class OrderFormComponent {
 
   /**
    * Costruisce un FormGroup per una singola riga dell'ordine.
-   * Estratto in metodo per riusarlo sia in 'new' (riga vuota) sia in
-   * 'edit' (pre-popolato).
-   *
-   * @param value - Valori opzionali per pre-popolare i controlli.
    */
   private buildItemGroup(
     value: { productId?: string; name?: string; qty?: number; price?: number } = {},
@@ -393,21 +394,25 @@ export class OrderFormComponent {
   }
 
   /**
-   * Aggiunge una riga vuota al FormArray.
+   * Incrementa il counter per notificare ai computed che la collezione
+   * dei controls e' cambiata strutturalmente.
    */
+  private bumpItems(): void {
+    this.itemsRevision.update((v) => v + 1);
+  }
+
+  /** Aggiunge una riga vuota al FormArray. */
   protected addItem(): void {
     this.items.push(this.buildItemGroup());
     this.items.markAsDirty();
+    this.bumpItems();
   }
 
-  /**
-   * Rimuove la riga all'indice dato (handler dell'output di OrderItemRow).
-   *
-   * @param index - Indice della riga nel FormArray.
-   */
+  /** Rimuove la riga all'indice dato. */
   protected removeItem(index: number): void {
     this.items.removeAt(index);
     this.items.markAsDirty();
+    this.bumpItems();
   }
 
   /**
@@ -423,7 +428,6 @@ export class OrderFormComponent {
     this.submitting.set(true);
     const value = this.form.getRawValue();
 
-    // calcoliamo il total per persisterlo (utile in liste senza ricalcoli)
     const total = (value.items as Array<{ qty: number; price: number }>).reduce(
       (sum, it) => sum + it.qty * it.price,
       0,
@@ -436,9 +440,6 @@ export class OrderFormComponent {
         status: value.status,
         items: value.items as Order['items'],
         total,
-        // preserviamo il createdAt originale solo se ricaricassimo l'ordine:
-        // qui per semplicita lo settiamo a "now". In una versione completa
-        // andrebbe conservato nel componente.
         createdAt: new Date().toISOString(),
       };
 
@@ -448,8 +449,6 @@ export class OrderFormComponent {
       });
     } else {
       const order: Order = {
-        // id generato lato client per restare type-safe sul `string`
-        // del modello, indipendente dal comportamento di json-server.
         id: crypto.randomUUID(),
         customerId: value.customerId,
         status: value.status,
@@ -465,16 +464,12 @@ export class OrderFormComponent {
     }
   }
 
-  /**
-   * Annulla la modifica e torna alla lista.
-   */
+  /** Annulla la modifica e torna alla lista. */
   protected cancel(): void {
     this.router.navigate(['/orders']);
   }
 
-  /**
-   * Mappa status -> etichetta in italiano per il select.
-   */
+  /** Mappa status -> etichetta in italiano per il select. */
   protected statusLabel(status: OrderStatus): string {
     return {
       pending: 'In attesa',
