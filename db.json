@@ -1,30 +1,137 @@
 {
   "customers": [
-    { "id": "1", "name": "Marco Rossi", "email": "marco.rossi@email.it" },
-    { "id": "2", "name": "Laura Bianchi", "email": "laura.bianchi@email.it" },
-    { "id": "3", "name": "Giuseppe Verdi", "email": "giuseppe.verdi@email.it" },
-    { "id": "4", "name": "Anna Ferrari", "email": "anna.ferrari@email.it" },
-    { "id": "5", "name": "Luca Romano", "email": "luca.romano@email.it" },
-    { "id": "6", "name": "Sofia Esposito", "email": "sofia.esposito@email.it" },
-    { "id": "7", "name": "Matteo Conti", "email": "matteo.conti@email.it" },
-    { "id": "8", "name": "Giulia Greco", "email": "giulia.greco@email.it" }
+    {
+      "id": "1",
+      "name": "Marco Rossi",
+      "email": "marco.rossi@email.it"
+    },
+    {
+      "id": "2",
+      "name": "Laura Bianchi",
+      "email": "laura.bianchi@email.it"
+    },
+    {
+      "id": "3",
+      "name": "Giuseppe Verdi",
+      "email": "giuseppe.verdi@email.it"
+    },
+    {
+      "id": "4",
+      "name": "Anna Ferrari",
+      "email": "anna.ferrari@email.it"
+    },
+    {
+      "id": "5",
+      "name": "Luca Romano",
+      "email": "luca.romano@email.it"
+    },
+    {
+      "id": "6",
+      "name": "Sofia Esposito",
+      "email": "sofia.esposito@email.it"
+    },
+    {
+      "id": "7",
+      "name": "Matteo Conti",
+      "email": "matteo.conti@email.it"
+    },
+    {
+      "id": "8",
+      "name": "Giulia Greco",
+      "email": "giulia.greco@email.it"
+    }
   ],
   "products": [
-    { "id": "1", "name": "iPhone 17 Pro", "price": 1299, "category": "Smartphone" },
-    { "id": "2", "name": "MacBook Air M5", "price": 1499, "category": "Laptop" },
-    { "id": "3", "name": "AirPods Pro 3", "price": 279, "category": "Audio" },
-    { "id": "4", "name": "Apple Watch Series 11", "price": 449, "category": "Wearable" },
-    { "id": "5", "name": "iPad Air", "price": 699, "category": "Tablet" },
-    { "id": "6", "name": "Logitech MX Master 4", "price": 119, "category": "Accessori" },
-    { "id": "7", "name": "Keychron K8 Pro", "price": 159, "category": "Accessori" },
-    { "id": "8", "name": "Dell UltraSharp 27\"", "price": 549, "category": "Monitor" },
-    { "id": "9", "name": "Samsung T7 SSD 1TB", "price": 129, "category": "Storage" },
-    { "id": "10", "name": "Logitech Brio 4K", "price": 199, "category": "Webcam" },
-    { "id": "11", "name": "Shure MV7+ Microfono", "price": 299, "category": "Audio" },
-    { "id": "12", "name": "PlayStation 5 Pro", "price": 799, "category": "Gaming" },
-    { "id": "13", "name": "LG OLED 55\"", "price": 1899, "category": "TV" },
-    { "id": "14", "name": "Sony WH-1000XM6", "price": 419, "category": "Audio" },
-    { "id": "15", "name": "Anker PowerHub 100W", "price": 89, "category": "Accessori" }
+    {
+      "id": "1",
+      "name": "iPhone 17 Pro",
+      "price": 1299,
+      "category": "Smartphone"
+    },
+    {
+      "id": "2",
+      "name": "MacBook Air M5",
+      "price": 1499,
+      "category": "Laptop"
+    },
+    {
+      "id": "3",
+      "name": "AirPods Pro 3",
+      "price": 279,
+      "category": "Audio"
+    },
+    {
+      "id": "4",
+      "name": "Apple Watch Series 11",
+      "price": 449,
+      "category": "Wearable"
+    },
+    {
+      "id": "5",
+      "name": "iPad Air",
+      "price": 699,
+      "category": "Tablet"
+    },
+    {
+      "id": "6",
+      "name": "Logitech MX Master 4",
+      "price": 119,
+      "category": "Accessori"
+    },
+    {
+      "id": "7",
+      "name": "Keychron K8 Pro",
+      "price": 159,
+      "category": "Accessori"
+    },
+    {
+      "id": "8",
+      "name": "Dell UltraSharp 27\"",
+      "price": 549,
+      "category": "Monitor"
+    },
+    {
+      "id": "9",
+      "name": "Samsung T7 SSD 1TB",
+      "price": 129,
+      "category": "Storage"
+    },
+    {
+      "id": "10",
+      "name": "Logitech Brio 4K",
+      "price": 199,
+      "category": "Webcam"
+    },
+    {
+      "id": "11",
+      "name": "Shure MV7+ Microfono",
+      "price": 299,
+      "category": "Audio"
+    },
+    {
+      "id": "12",
+      "name": "PlayStation 5 Pro",
+      "price": 799,
+      "category": "Gaming"
+    },
+    {
+      "id": "13",
+      "name": "LG OLED 55\"",
+      "price": 1899,
+      "category": "TV"
+    },
+    {
+      "id": "14",
+      "name": "Sony WH-1000XM6",
+      "price": 419,
+      "category": "Audio"
+    },
+    {
+      "id": "15",
+      "name": "Anker PowerHub 100W",
+      "price": 89,
+      "category": "Accessori"
+    }
   ],
   "orders": [
     {
@@ -32,8 +139,18 @@
       "customerId": "1",
       "status": "delivered",
       "items": [
-        { "productId": "1", "name": "iPhone 17 Pro", "qty": 1, "price": 1299 },
-        { "productId": "3", "name": "AirPods Pro 3", "qty": 1, "price": 279 }
+        {
+          "productId": "1",
+          "name": "iPhone 17 Pro",
+          "qty": 1,
+          "price": 1299
+        },
+        {
+          "productId": "3",
+          "name": "AirPods Pro 3",
+          "qty": 1,
+          "price": 279
+        }
       ],
       "total": 1578,
       "createdAt": "2026-02-22T10:14:00.000Z"
@@ -43,19 +160,45 @@
       "customerId": "2",
       "status": "shipped",
       "items": [
-        { "productId": "2", "name": "MacBook Air M5", "qty": 1, "price": 1499 }
+        {
+          "productId": "2",
+          "name": "MacBook Air M5",
+          "qty": 1,
+          "price": 1499
+        },
+        {
+          "productId": "15",
+          "name": "Anker PowerHub 100W",
+          "qty": 1,
+          "price": 89
+        }
       ],
-      "total": 1499,
-      "createdAt": "2026-03-04T15:42:00.000Z"
+      "total": 1588,
+      "createdAt": "2026-05-25T18:15:58.373Z"
     },
     {
       "id": "3",
       "customerId": "3",
       "status": "pending",
       "items": [
-        { "productId": "6", "name": "Logitech MX Master 4", "qty": 2, "price": 119 },
-        { "productId": "7", "name": "Keychron K8 Pro", "qty": 1, "price": 159 },
-        { "productId": "8", "name": "Dell UltraSharp 27\"", "qty": 1, "price": 549 }
+        {
+          "productId": "6",
+          "name": "Logitech MX Master 4",
+          "qty": 2,
+          "price": 119
+        },
+        {
+          "productId": "7",
+          "name": "Keychron K8 Pro",
+          "qty": 1,
+          "price": 159
+        },
+        {
+          "productId": "8",
+          "name": "Dell UltraSharp 27\"",
+          "qty": 1,
+          "price": 549
+        }
       ],
       "total": 946,
       "createdAt": "2026-05-12T09:05:00.000Z"
@@ -65,7 +208,12 @@
       "customerId": "4",
       "status": "cancelled",
       "items": [
-        { "productId": "13", "name": "LG OLED 55\"", "qty": 1, "price": 1899 }
+        {
+          "productId": "13",
+          "name": "LG OLED 55\"",
+          "qty": 1,
+          "price": 1899
+        }
       ],
       "total": 1899,
       "createdAt": "2026-03-18T11:00:00.000Z"
@@ -75,8 +223,18 @@
       "customerId": "5",
       "status": "delivered",
       "items": [
-        { "productId": "12", "name": "PlayStation 5 Pro", "qty": 1, "price": 799 },
-        { "productId": "14", "name": "Sony WH-1000XM6", "qty": 1, "price": 419 }
+        {
+          "productId": "12",
+          "name": "PlayStation 5 Pro",
+          "qty": 1,
+          "price": 799
+        },
+        {
+          "productId": "14",
+          "name": "Sony WH-1000XM6",
+          "qty": 1,
+          "price": 419
+        }
       ],
       "total": 1218,
       "createdAt": "2026-02-28T17:30:00.000Z"
@@ -86,8 +244,18 @@
       "customerId": "1",
       "status": "shipped",
       "items": [
-        { "productId": "5", "name": "iPad Air", "qty": 1, "price": 699 },
-        { "productId": "15", "name": "Anker PowerHub 100W", "qty": 2, "price": 89 }
+        {
+          "productId": "5",
+          "name": "iPad Air",
+          "qty": 1,
+          "price": 699
+        },
+        {
+          "productId": "15",
+          "name": "Anker PowerHub 100W",
+          "qty": 2,
+          "price": 89
+        }
       ],
       "total": 877,
       "createdAt": "2026-04-22T08:18:00.000Z"
@@ -97,19 +265,45 @@
       "customerId": "6",
       "status": "pending",
       "items": [
-        { "productId": "4", "name": "Apple Watch Series 11", "qty": 1, "price": 449 }
+        {
+          "productId": "4",
+          "name": "Apple Watch Series 11",
+          "qty": 1,
+          "price": 449
+        },
+        {
+          "productId": "14",
+          "name": "Sony WH-1000XM6",
+          "qty": 1,
+          "price": 419
+        }
       ],
-      "total": 449,
-      "createdAt": "2026-05-16T13:55:00.000Z"
+      "total": 868,
+      "createdAt": "2026-05-25T18:15:39.753Z"
     },
     {
       "id": "8",
       "customerId": "7",
       "status": "delivered",
       "items": [
-        { "productId": "10", "name": "Logitech Brio 4K", "qty": 1, "price": 199 },
-        { "productId": "11", "name": "Shure MV7+ Microfono", "qty": 1, "price": 299 },
-        { "productId": "6", "name": "Logitech MX Master 4", "qty": 1, "price": 119 }
+        {
+          "productId": "10",
+          "name": "Logitech Brio 4K",
+          "qty": 1,
+          "price": 199
+        },
+        {
+          "productId": "11",
+          "name": "Shure MV7+ Microfono",
+          "qty": 1,
+          "price": 299
+        },
+        {
+          "productId": "6",
+          "name": "Logitech MX Master 4",
+          "qty": 1,
+          "price": 119
+        }
       ],
       "total": 617,
       "createdAt": "2026-03-08T14:20:00.000Z"
@@ -119,7 +313,12 @@
       "customerId": "8",
       "status": "shipped",
       "items": [
-        { "productId": "9", "name": "Samsung T7 SSD 1TB", "qty": 3, "price": 129 }
+        {
+          "productId": "9",
+          "name": "Samsung T7 SSD 1TB",
+          "qty": 3,
+          "price": 129
+        }
       ],
       "total": 387,
       "createdAt": "2026-04-10T10:45:00.000Z"
@@ -129,8 +328,18 @@
       "customerId": "2",
       "status": "pending",
       "items": [
-        { "productId": "1", "name": "iPhone 17 Pro", "qty": 1, "price": 1299 },
-        { "productId": "4", "name": "Apple Watch Series 11", "qty": 1, "price": 449 }
+        {
+          "productId": "1",
+          "name": "iPhone 17 Pro",
+          "qty": 1,
+          "price": 1299
+        },
+        {
+          "productId": "4",
+          "name": "Apple Watch Series 11",
+          "qty": 1,
+          "price": 449
+        }
       ],
       "total": 1748,
       "createdAt": "2026-05-18T09:32:00.000Z"
@@ -140,8 +349,18 @@
       "customerId": "3",
       "status": "cancelled",
       "items": [
-        { "productId": "2", "name": "MacBook Air M5", "qty": 1, "price": 1499 },
-        { "productId": "8", "name": "Dell UltraSharp 27\"", "qty": 1, "price": 549 }
+        {
+          "productId": "2",
+          "name": "MacBook Air M5",
+          "qty": 1,
+          "price": 1499
+        },
+        {
+          "productId": "8",
+          "name": "Dell UltraSharp 27\"",
+          "qty": 1,
+          "price": 549
+        }
       ],
       "total": 2048,
       "createdAt": "2026-03-25T16:00:00.000Z"
@@ -151,8 +370,18 @@
       "customerId": "5",
       "status": "shipped",
       "items": [
-        { "productId": "3", "name": "AirPods Pro 3", "qty": 2, "price": 279 },
-        { "productId": "15", "name": "Anker PowerHub 100W", "qty": 1, "price": 89 }
+        {
+          "productId": "3",
+          "name": "AirPods Pro 3",
+          "qty": 2,
+          "price": 279
+        },
+        {
+          "productId": "15",
+          "name": "Anker PowerHub 100W",
+          "qty": 1,
+          "price": 89
+        }
       ],
       "total": 647,
       "createdAt": "2026-04-30T12:10:00.000Z"
@@ -162,9 +391,24 @@
       "customerId": "4",
       "status": "pending",
       "items": [
-        { "productId": "14", "name": "Sony WH-1000XM6", "qty": 1, "price": 419 },
-        { "productId": "7", "name": "Keychron K8 Pro", "qty": 1, "price": 159 },
-        { "productId": "9", "name": "Samsung T7 SSD 1TB", "qty": 2, "price": 129 }
+        {
+          "productId": "14",
+          "name": "Sony WH-1000XM6",
+          "qty": 1,
+          "price": 419
+        },
+        {
+          "productId": "7",
+          "name": "Keychron K8 Pro",
+          "qty": 1,
+          "price": 159
+        },
+        {
+          "productId": "9",
+          "name": "Samsung T7 SSD 1TB",
+          "qty": 2,
+          "price": 129
+        }
       ],
       "total": 836,
       "createdAt": "2026-05-14T18:25:00.000Z"
@@ -174,14 +418,29 @@
       "customerId": "6",
       "status": "delivered",
       "items": [
-        { "productId": "5", "name": "iPad Air", "qty": 1, "price": 699 }
+        {
+          "productId": "5",
+          "name": "iPad Air",
+          "qty": 1,
+          "price": 699
+        }
       ],
       "total": 699,
       "createdAt": "2026-03-02T11:15:00.000Z"
     }
   ],
   "users": [
-    { "id": "1", "username": "admin", "password": "admin", "role": "admin" },
-    { "id": "2", "username": "user", "password": "user", "role": "user" }
+    {
+      "id": "1",
+      "username": "admin",
+      "password": "admin",
+      "role": "admin"
+    },
+    {
+      "id": "2",
+      "username": "user",
+      "password": "user",
+      "role": "user"
+    }
   ]
 }
